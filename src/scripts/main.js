@@ -10,7 +10,7 @@ const isBrowser = typeof window !== 'undefined'
  * @param {Number} duration
  * @returns {Function}
  */
-const debounce = function(fn, duration) {
+const debounce = function (fn, duration) {
 
 	let timeout = null
 
@@ -29,7 +29,7 @@ const debounce = function(fn, duration) {
  * @param {Array} instances
  * @returns {Array} instances - Active instances.
  */
-const getActiveInstances = function(instances) {
+const getActiveInstances = function (instances) {
 
 	return instances.filter((instance) => instance != null && instance.isActive())
 
@@ -40,7 +40,7 @@ const getActiveInstances = function(instances) {
  * @param {Array} instances
  * @returns {Array} instances - Tracked instances.
  */
-const getTrackedInstances = function(instances) {
+const getTrackedInstances = function (instances) {
 
 	return instances.filter((instance) => instance != null && instance.getData().track)
 
@@ -51,7 +51,7 @@ const getTrackedInstances = function(instances) {
  * Returns the number of scrolled pixels.
  * @returns {Number} scrollTop
  */
-const getScrollTop = function() {
+const getScrollTop = function () {
 
 	// Use scrollTop because it's faster than getBoundingClientRect()
 	return (document.scrollingElement || document.documentElement).scrollTop
@@ -62,7 +62,7 @@ const getScrollTop = function() {
  * Returns the height of the viewport.
  * @returns {Number} viewportHeight
  */
-const getViewportHeight = function() {
+const getViewportHeight = function () {
 
 	return (window.innerHeight || window.outerHeight)
 
@@ -74,7 +74,7 @@ const getViewportHeight = function() {
  * @param {String|Integer} value
  * @returns {Boolean} isAbsolute
  */
-const isAbsoluteValue = function(value) {
+const isAbsoluteValue = function (value) {
 
 	return isNaN(parseUnit(value)[0]) === false
 
@@ -85,7 +85,7 @@ const isAbsoluteValue = function(value) {
  * @param {String|Integer} value
  * @returns {Object} value - Parsed value.
  */
-const parseAbsoluteValue = function(value) {
+const parseAbsoluteValue = function (value) {
 
 	const parsedValue = parseUnit(value)
 
@@ -102,7 +102,7 @@ const parseAbsoluteValue = function(value) {
  * @param {String|Integer} value
  * @returns {Boolean} isRelative
  */
-const isRelativeValue = function(value) {
+const isRelativeValue = function (value) {
 
 	return String(value).match(/^[a-z]+-[a-z]+$/) !== null
 
@@ -114,7 +114,7 @@ const isRelativeValue = function(value) {
  * @param {Object} properties
  * @returns {*}
  */
-const mapDirectToProperty = function(direct, properties) {
+const mapDirectToProperty = function (direct, properties) {
 
 	if (direct === true) return properties.elem
 	if (direct instanceof HTMLElement === true) return properties.direct
@@ -131,7 +131,7 @@ const mapDirectToProperty = function(direct, properties) {
  * @param {?Integer} viewportHeight - Height of the viewport.
  * @returns {String} value - Absolute value.
  */
-const relativeToAbsoluteValue = function(value, elem, scrollTop = getScrollTop(), viewportHeight = getViewportHeight()) {
+const relativeToAbsoluteValue = function (value, elem, scrollTop = getScrollTop(), viewportHeight = getViewportHeight()) {
 
 	const elemSize = elem.getBoundingClientRect()
 
@@ -148,7 +148,7 @@ const relativeToAbsoluteValue = function(value, elem, scrollTop = getScrollTop()
 	if (elemAnchor === 'middle') y += (elemSize.top + scrollTop) + elemSize.height / 2
 	if (elemAnchor === 'bottom') y += (elemSize.top + scrollTop) + elemSize.height
 
-	return `${ y }px`
+	return `${y}px`
 
 }
 
@@ -157,13 +157,13 @@ const relativeToAbsoluteValue = function(value, elem, scrollTop = getScrollTop()
  * @param {?Object} data
  * @returns {Object} data - Validated data.
  */
-const validate = function(data = {}) {
+const validate = function (data = {}) {
 
 	// Copy root object to avoid changes by reference
 	data = Object.assign({}, data)
 
-	if (data.inside == null) data.inside = () => {}
-	if (data.outside == null) data.outside = () => {}
+	if (data.inside == null) data.inside = () => { }
+	if (data.outside == null) data.outside = () => { }
 	if (data.direct == null) data.direct = false
 	if (data.track == null) data.track = true
 	if (data.props == null) data.props = {}
@@ -227,7 +227,7 @@ const validate = function(data = {}) {
  * @param {?Integer} scrollTop - Pixels scrolled in document.
  * @returns {Object} Calculated props and the element to apply styles to.
  */
-const getProps = function(instance, scrollTop = getScrollTop()) {
+const getProps = function (instance, scrollTop = getScrollTop()) {
 
 	const data = instance.getData()
 
@@ -298,7 +298,7 @@ const getProps = function(instance, scrollTop = getScrollTop()) {
  * @param {Node} elem - Styles will be applied to this element.
  * @param {Object} prop - Object with a key and value.
  */
-const setProp = function(elem, prop) {
+const setProp = function (elem, prop) {
 
 	elem.style.setProperty(prop.key, prop.value)
 
@@ -309,7 +309,7 @@ const setProp = function(elem, prop) {
  * @param {Node} elem - Styles will be applied to this element.
  * @param {Object} props - Object of props.
  */
-const setProps = function(elem, props) {
+const setProps = function (elem, props) {
 
 	Object.keys(props).forEach((key) => setProp(elem, {
 		key: key,
@@ -325,7 +325,7 @@ const setProps = function(elem, props) {
  * @param {?Integer} previousScrollTop
  * @returns {?*}
  */
-const loop = function(style, previousScrollTop) {
+const loop = function (style, previousScrollTop) {
 
 	// Continue loop
 	const repeat = () => {
@@ -362,7 +362,7 @@ const loop = function(style, previousScrollTop) {
  * @param {Object} data
  * @returns {Object} instance
  */
-export const create = function(data) {
+export const create = function (data) {
 
 	// Store the parsed data
 	let _data = null
@@ -378,14 +378,14 @@ export const create = function(data) {
 	}
 
 	// Returns the parsed and calculated data
-	const _getData = function() {
+	const _getData = function () {
 
 		return _data
 
 	}
 
 	// Parses and calculates data
-	const _calculate = function() {
+	const _calculate = function () {
 
 		_data = validate(data)
 
@@ -449,27 +449,27 @@ export const create = function(data) {
 
 }
 
-// Only run basicScroll when executed in a browser environment
-if (isBrowser === true) {
+// // Only run basicScroll when executed in a browser environment
+// if (isBrowser === true) {
 
-	// Start to loop
-	loop()
+// 	// Start to loop
+// 	// loop()
 
-	// Recalculate and update instances when the window size changes
-	window.addEventListener('resize', debounce(() => {
+// 	// Recalculate and update instances when the window size changes
+// 	// window.addEventListener('resize', debounce(() => {
 
-		// Get all tracked instances
-		const trackedInstances = getTrackedInstances(instances)
+// 	// 	// Get all tracked instances
+// 	// 	const trackedInstances = getTrackedInstances(instances)
 
-		trackedInstances.forEach((instance) => {
-			instance.calculate()
-			instance.update()
-		})
+// 	// 	trackedInstances.forEach((instance) => {
+// 	// 		instance.calculate()
+// 	// 		instance.update()
+// 	// 	})
 
-	}, 50))
+// 	// }, 50))
 
-} else {
+// } else {
 
-	console.warn('basicScroll is not executing because you are using it in an environment without a `window` object')
+// 	console.warn('basicScroll is not executing because you are using it in an environment without a `window` object')
 
-}
+// }
