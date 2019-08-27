@@ -7,7 +7,7 @@ const save = promisify(writeFile)
 
 js('src/scripts/main.js', {
 
-	optimize: true,
+	optimize: false,
 	browserify: {
 		standalone: 'basicScroll'
 	}
