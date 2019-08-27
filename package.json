@@ -26,7 +26,8 @@
   ],
   "dependencies": {
     "eases": "^1.0.8",
-    "parse-unit": "^1.0.1"
+    "parse-unit": "^1.0.1",
+    "yano-js": "0.0.62"
   },
   "devDependencies": {
     "rosid-handler-js": "^12.0.1"

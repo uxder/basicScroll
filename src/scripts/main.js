@@ -4,47 +4,7 @@ import eases from 'eases'
 const instances = []
 const isBrowser = typeof window !== 'undefined'
 
-/**
- * Debounces a function that will be triggered many times.
- * @param {Function} fn
- * @param {Number} duration
- * @returns {Function}
- */
-const debounce = function (fn, duration) {
 
-	let timeout = null
-
-	return (...args) => {
-
-		clearTimeout(timeout)
-
-		timeout = setTimeout(() => fn(...args), duration)
-
-	}
-
-}
-
-/**
- * Returns all active instances from an array.
- * @param {Array} instances
- * @returns {Array} instances - Active instances.
- */
-const getActiveInstances = function (instances) {
-
-	return instances.filter((instance) => instance != null && instance.isActive())
-
-}
-
-/**
- * Returns all tracked instances from an array.
- * @param {Array} instances
- * @returns {Array} instances - Tracked instances.
- */
-const getTrackedInstances = function (instances) {
-
-	return instances.filter((instance) => instance != null && instance.getData().track)
-
-}
 
 
 /**
@@ -52,10 +12,20 @@ const getTrackedInstances = function (instances) {
  * @returns {Number} scrollTop
  */
 const getScrollTop = function () {
-
-	// Use scrollTop because it's faster than getBoundingClientRect()
-	return (document.scrollingElement || document.documentElement).scrollTop
-
+	// Somewhat ugly but cache it as a global variable. :/
+	// This way, we pull from memory only when needed and update as needed.
+	if (window['BasicScrollTop']) {
+		return window['BasicScrollTop'];
+	} else {
+		let scrollTop = (document.scrollingElement || document.documentElement).scrollTop;
+		window['BasicScrollTop'] = scrollTop;
+		// Wait for a single scroll to clear the cache.
+		window.addEventListener('scroll', () => {
+			window['BasicScrollTop'] = null;
+		}, { passive: true, once: true });
+		window['BasicScrollTop'] = scrollTop;
+		return window['BasicScrollTop'];
+	}
 }
 
 /**
@@ -63,9 +33,7 @@ const getScrollTop = function () {
  * @returns {Number} viewportHeight
  */
 const getViewportHeight = function () {
-
 	return (window.innerHeight || window.outerHeight)
-
 }
 
 /**
@@ -299,9 +267,7 @@ const getProps = function (instance, scrollTop = getScrollTop()) {
  * @param {Object} prop - Object with a key and value.
  */
 const setProp = function (elem, prop) {
-
 	elem.style.setProperty(prop.key, prop.value)
-
 }
 
 /**
@@ -318,44 +284,6 @@ const setProps = function (elem, props) {
 
 }
 
-/**
- * Gets and sets new props when the user has scrolled and when there are active instances.
- * This part get executed with every frame. Make sure it's performant as hell.
- * @param {Object} style - Style object.
- * @param {?Integer} previousScrollTop
- * @returns {?*}
- */
-const loop = function (style, previousScrollTop) {
-
-	// Continue loop
-	const repeat = () => {
-
-		// It depends on the browser, but it turns out that closures
-		// are sometimes faster than .bind or .apply.
-		requestAnimationFrame(() => loop(style, previousScrollTop))
-
-	}
-
-	// Get all active instances
-	const activeInstances = getActiveInstances(instances)
-
-	// Only continue when active instances available
-	if (activeInstances.length === 0) return repeat()
-
-	const scrollTop = getScrollTop()
-
-	// Only continue when scrollTop has changed
-	if (previousScrollTop === scrollTop) return repeat()
-	else previousScrollTop = scrollTop
-
-	// Get and set new props of each instance
-	activeInstances
-		.map((instance) => getProps(instance, scrollTop))
-		.forEach(({ elem, props }) => setProps(elem, props))
-
-	repeat()
-
-}
 
 /**
  * Creates a new instance.
@@ -367,75 +295,43 @@ export const create = function (data) {
 	// Store the parsed data
 	let _data = null
 
-	// Store if instance is started or stopped
-	let active = false
-
-	// Returns if instance is started or stopped
-	const _isActive = () => {
-
-		return active
-
-	}
 
 	// Returns the parsed and calculated data
 	const _getData = function () {
-
 		return _data
-
 	}
 
 	// Parses and calculates data
 	const _calculate = function () {
-
 		_data = validate(data)
-
 	}
+
+	let previousScrollTop = null;
 
 	// Update props
 	const _update = () => {
-
-		// Get new props
-		const { elem, props } = getProps(instance)
-
-		// Set new props
-		setProps(elem, props)
-
-		return props
-
+		const currentScrollTop = getScrollTop();
+		if (currentScrollTop !== previousScrollTop) {
+			const { elem, props } = getProps(instance, currentScrollTop)
+			setProps(elem, props)
+			previousScrollTop = currentScrollTop;
+		}
 	}
 
-	// Starts to animate
-	const _start = () => {
-
-		active = true
-
-	}
-
-	// Stops to animate
-	const _stop = () => {
-
-		active = false
-
-	}
 
 	// Destroys the instance
 	const _destroy = () => {
-
 		// Replace instance instead of deleting the item to avoid
 		// that the index of other instances changes.
 		instances[index] = undefined
-
 	}
 
 	// Assign instance to a variable so the instance can be used
 	// elsewhere in the current function.
 	const instance = {
-		isActive: _isActive,
 		getData: _getData,
 		calculate: _calculate,
 		update: _update,
-		start: _start,
-		stop: _stop,
 		destroy: _destroy
 	}
 
@@ -448,28 +344,3 @@ export const create = function (data) {
 	return instance
 
 }
-
-// // Only run basicScroll when executed in a browser environment
-// if (isBrowser === true) {
-
-// 	// Start to loop
-// 	// loop()
-
-// 	// Recalculate and update instances when the window size changes
-// 	// window.addEventListener('resize', debounce(() => {
-
-// 	// 	// Get all tracked instances
-// 	// 	const trackedInstances = getTrackedInstances(instances)
-
-// 	// 	trackedInstances.forEach((instance) => {
-// 	// 		instance.calculate()
-// 	// 		instance.update()
-// 	// 	})
-
-// 	// }, 50))
-
-// } else {
-
-// 	console.warn('basicScroll is not executing because you are using it in an environment without a `window` object')
-
-// }
